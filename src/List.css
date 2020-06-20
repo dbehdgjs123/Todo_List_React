@@ -1,0 +1,8 @@
+.list {
+  width: 300px;
+  height: 400px;
+  background-color: #81b9bf;
+  border-radius: 10px;
+  margin-top: 10px;
+  overflow: auto;
+}
