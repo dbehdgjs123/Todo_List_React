@@ -13,6 +13,7 @@ function List(props) {
       onEdit={props.onEdit}
     />
   ));
+  console.log(list);
 
   return <div className="list">{list}</div>;
 }

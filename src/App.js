@@ -1,51 +1,85 @@
 import React from "react";
 import List from "./components/List";
 import "./App.css";
-import { useState } from "react";
+import { useReducer } from "react";
+import { useEffect } from "react";
 
 let id = 0;
-function App() {
-  const [InputTodo, setInputTodo] = useState({
-    AddTodo: "",
-    NowTodo: [],
-  });
+function reducer(state, action) {
+  const { AddTodo, NowTodo } = state;
+  switch (action.type) {
+    case "INPUT_CHANGE":
+      return {
+        ...state,
+        AddTodo: action.AddTodo,
+      };
 
-  const { AddTodo, NowTodo } = InputTodo;
+    case "CREATE_USER":
+      if (AddTodo !== "") {
+        return {
+          AddTodo: initialState.AddTodo,
+          NowTodo: NowTodo.concat({ todo: AddTodo, Id: action.nextId }),
+        };
+      }
+      return {
+        ...state,
+      };
+
+    case "EDIT_USER":
+      return {
+        ...state,
+        NowTodo: NowTodo.map((item) =>
+          item.Id === action.dataId
+            ? { todo: action.data, Id: action.dataId }
+            : item
+        ),
+      };
+
+    case "DELETE_USER":
+      return {
+        ...state,
+        NowTodo: NowTodo.filter((item) => item.Id !== action.dataId),
+      };
+
+    default:
+      return state;
+  }
+}
+
+const initialState = {
+  AddTodo: "",
+  NowTodo: [],
+};
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { AddTodo, NowTodo } = state;
 
   const onInputHandler = (e) => {
-    setInputTodo({
-      ...InputTodo,
+    dispatch({
+      type: "INPUT_CHANGE",
       AddTodo: e.target.value,
     });
   };
 
   const onsubmitHandler = () => {
-    if (AddTodo !== "") {
-      setInputTodo({
-        NowTodo: NowTodo.concat({ todo: AddTodo, Id: id++ }),
-        AddTodo: "",
-      });
-    } else {
-      console.log("값이 비었습니다");
-    }
+    dispatch({
+      type: "CREATE_USER",
+      nextId: id++,
+    });
   };
   const onEdit = (data, dataId) => {
-    setInputTodo({
-      ...InputTodo,
-      NowTodo: NowTodo.map((item) => {
-        if (item.Id == dataId) {
-          item.todo = data;
-          console.log(item.todo);
-          return item;
-        }
-        return item;
-      }),
+    dispatch({
+      type: "EDIT_USER",
+      data: data,
+      dataId: dataId,
     });
   };
   const onDelete = (dataId) => {
-    setInputTodo({
-      ...InputTodo,
-      NowTodo: NowTodo.filter((item) => item.Id !== dataId),
+    dispatch({
+      type: "DELETE_USER",
+      dataId: dataId,
     });
   };
 
