@@ -1,55 +1,17 @@
 import React from "react";
 import List from "./components/List";
 import "./App.css";
-import { useReducer } from "react";
-import { useEffect } from "react";
+import { useReducer, createContext } from "react";
+import { reducer } from "./reducer/reducer";
 
 let id = 0;
-function reducer(state, action) {
-  const { AddTodo, NowTodo } = state;
-  switch (action.type) {
-    case "INPUT_CHANGE":
-      return {
-        ...state,
-        AddTodo: action.AddTodo,
-      };
-
-    case "CREATE_USER":
-      if (AddTodo !== "") {
-        return {
-          AddTodo: initialState.AddTodo,
-          NowTodo: NowTodo.concat({ todo: AddTodo, Id: action.nextId }),
-        };
-      }
-      return {
-        ...state,
-      };
-
-    case "EDIT_USER":
-      return {
-        ...state,
-        NowTodo: NowTodo.map((item) =>
-          item.Id === action.dataId
-            ? { todo: action.data, Id: action.dataId }
-            : item
-        ),
-      };
-
-    case "DELETE_USER":
-      return {
-        ...state,
-        NowTodo: NowTodo.filter((item) => item.Id !== action.dataId),
-      };
-
-    default:
-      return state;
-  }
-}
 
 const initialState = {
   AddTodo: "",
   NowTodo: [],
 };
+
+export const UserDispath = createContext(null);
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -64,23 +26,14 @@ function App() {
   };
 
   const onsubmitHandler = () => {
-    dispatch({
-      type: "CREATE_USER",
-      nextId: id++,
-    });
-  };
-  const onEdit = (data, dataId) => {
-    dispatch({
-      type: "EDIT_USER",
-      data: data,
-      dataId: dataId,
-    });
-  };
-  const onDelete = (dataId) => {
-    dispatch({
-      type: "DELETE_USER",
-      dataId: dataId,
-    });
+    if (AddTodo !== "") {
+      dispatch({
+        type: "CREATE_USER",
+        nextId: id++,
+      });
+    } else {
+      console.log("값을 입력하세요");
+    }
   };
 
   return (
@@ -96,7 +49,9 @@ function App() {
           추가
         </button>
       </div>
-      <List data={NowTodo} onDelete={onDelete} onEdit={onEdit} />
+      <UserDispath.Provider value={dispatch}>
+        <List data={NowTodo} />
+      </UserDispath.Provider>
     </div>
   );
 }

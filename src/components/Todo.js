@@ -1,16 +1,20 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import "../todo.css";
+import { UserDispath } from "../App";
 
-function Todo(props) {
+function Todo({ data, id }) {
   const [Todo, setTodo] = useState({
     todoText: "",
     isEdit: false,
   });
+  const dispath = useContext(UserDispath); //app.js에서 만든 context 사용
   const { todoText, isEdit } = Todo;
-  const { onEdit } = props;
   const onDelete = () => {
-    props.onDelete(props.id);
+    dispath({
+      type: "DELETE_USER",
+      dataId: id,
+    });
   };
   const EditHandler = () => {
     if (isEdit) {
@@ -18,14 +22,19 @@ function Todo(props) {
         todoText: todoText,
         isEdit: !isEdit,
       });
-      onEdit(todoText, props.id);
+      dispath({
+        type: "EDIT_USER",
+        data: todoText,
+        dataId: id,
+      });
     } else {
       setTodo({
-        todoText: props.data,
+        todoText: data,
         isEdit: !isEdit,
       });
     }
   };
+
   const onChangeHandler = (e) => {
     setTodo({
       ...Todo,
@@ -42,7 +51,7 @@ function Todo(props) {
         </>
       ) : (
         <>
-          <h3>{props.data}</h3>
+          <h3>{data}</h3>
           <button onClick={EditHandler}>수정</button>
         </>
       )}
